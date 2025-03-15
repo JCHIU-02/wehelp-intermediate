@@ -49,30 +49,30 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 
 			if row_count - last_index >= 12:
 				cursor.execute("SELECT * FROM attractions LIMIT 12 OFFSET %s", (last_index,) )
-				attraction_list = cursor.fetchall()
+				attractions_per_page = cursor.fetchall()
 
 				for i in range(12):
-					attraction_list[i]["images"] = json.loads(attraction_list[i]["images"])
+					attractions_per_page[i]["images"] = json.loads(attractions_per_page[i]["images"])
 
 				cnx.close()	
 				return{
 				"nextPage": page + 1,
-				"data": attraction_list
+				"data": attractions_per_page
 			}
 
 			elif 0 < row_count - last_index < 12:
 
 				final_page_data_count = row_count - last_index
 				cursor.execute("SELECT * FROM attractions LIMIT %s OFFSET %s", (final_page_data_count,last_index) )
-				attraction_list = cursor.fetchall()
+				attractions_per_page = cursor.fetchall()
 
 				for i in range(final_page_data_count):
-					attraction_list[i]["images"] = json.loads(attraction_list[i]["images"])
+					attractions_per_page[i]["images"] = json.loads(attractions_per_page[i]["images"])
 
 				cnx.close()	
 				return{
 				"nextPage": None,
-				"data": attraction_list
+				"data": attractions_per_page
 				}
 
 
@@ -81,8 +81,6 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 				return{
 					"message":"data out of range."
 				}
-
-
 		
 		if keyword is not None:
 
@@ -92,20 +90,34 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 			row_count = count["COUNT(*)"]
 			
 			if row_count - last_index >= 12:
-				cursor.execute("SELECT * FROM attractions LIMIT 12 OFFSET %s", (last_index,) )
-				attraction_list = cursor.fetchall()
+				cursor.execute("SELECT * FROM attractions WHERE mrt = %s OR name LIKE %s LIMIT 12 OFFSET %s",
+				   (keyword, f"%{keyword}%", last_index))
+				attractions_per_page = cursor.fetchall()
 
 				for i in range(12):
-					attraction_list[i]["images"] = json.loads(attraction_list[i]["images"])
+					attractions_per_page[i]["images"] = json.loads(attractions_per_page[i]["images"])
+
+				cnx.close()	
+				return{
+					"nextPage": page + 1,
+					"data": attractions_per_page
+				}
 
 			elif 0 < row_count - last_index < 12:
 
 				final_page_data_count = row_count - last_index
-				cursor.execute("SELECT * FROM attractions LIMIT %s OFFSET %s", (final_page_data_count,last_index) )
-				attraction_list = cursor.fetchall()
+				cursor.execute("SELECT * FROM attractions WHERE mrt = %s OR name LIKE %s LIMIT %s OFFSET %s",
+				   (keyword, f"%{keyword}%", final_page_data_count, last_index))
+				attractions_per_page = cursor.fetchall()
 
 				for i in range(final_page_data_count):
-					attraction_list[i]["images"] = json.loads(attraction_list[i]["images"])
+					attractions_per_page[i]["images"] = json.loads(attractions_per_page[i]["images"])
+
+				cnx.close()	
+				return{
+					"nextPage": None,
+					"data": attractions_per_page
+				}
 
 			else:
 				cnx.close()	
@@ -113,12 +125,6 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 					"message":"data out of range or no matched keyword."
 				}
 
-
-			cnx.close()	
-			return{
-				"nextPage": page + 1,
-				"data": attraction_list
-			}
 	
 	except:
 		cnx.close()
