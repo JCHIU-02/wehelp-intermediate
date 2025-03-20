@@ -25,50 +25,80 @@ fetchMRTList();
 
 
 //fetch attractions without keyword
-
-function attractionLoader(){
-    
-    let page = 0
-
-    function loadAttractions(){
-        return fetch(`/api/attractions?page=${page}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            let attractionData = data["data"]
-            attractionData.forEach(attraction => {
-                let container = createAttractionContainer()
-                container.img.src = attraction["images"][0]
-                container.name.textContent = attraction["name"]
-                container.mrt.textContent = attraction["mrt"]
-                container.category.textContent = attraction["category"]   
-            });
-            return data["nextPage"]       
-        })
-    }
-
-    loadAttractions().then(nextPage => {
-            page = nextPage
-            let observer = new IntersectionObserver((entries) => {
-                //load more...
-                if(entries[0].isIntersecting)
-                loadAttractions().then(nextPageValue => {
-                    if(nextPageValue !== null){
-                        page = nextPageValue;
-                    }
-                    else{
-                        observer.disconnect();
-                    }
-                });
-                }
-            );
-            let target = document.getElementById("footer")
-            observer.observe(target);
-        
-    });
+let page = 0
+function loadAttractions(){
+    return fetch(`/api/attractions?page=${page}`)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        let attractionData = data["data"]
+        attractionData.forEach(attraction => {
+            let container = createAttractionContainer()
+            container.img.src = attraction["images"][0]
+            container.name.textContent = attraction["name"]
+            container.mrt.textContent = attraction["mrt"]
+            container.category.textContent = attraction["category"]   
+        });
+        return data["nextPage"]       
+    })
 }
 
-attractionLoader();
+//initial load //debug為何第一頁會 load 兩次 //不要把 page 設為全局變數 //部署上線測試
+loadAttractions().then(nextPage => {
+        page = nextPage
+        let observer = new IntersectionObserver((entries) => {
+            //load more...
+             if(entries[0].isIntersecting)
+             loadAttractions().then(nextPageValue => {
+                if(nextPageValue !== null){
+                    page = nextPageValue;
+                }
+                else{
+                    observer.disconnect();
+                }
+            });
+            }
+         );
+         let target = document.getElementById("footer")
+         observer.observe(target);
+    
+});
+
+
+
+
+function createAttractionContainer(){
+
+    let attractionsSection = document.getElementById('attractions-section')
+    let attractionCard = document.createElement("div")
+    let attractionInfo = document.createElement("div")
+    let attractionTag = document.createElement("div")
+    attractionsSection.appendChild(attractionCard)
+    attractionCard.appendChild(attractionInfo)
+    attractionCard.appendChild(attractionTag)
+    let infoImg = document.createElement("img")
+    let infoName = document.createElement("p")
+    attractionInfo.appendChild(infoImg)
+    attractionInfo.appendChild(infoName)
+    let tagMrt = document.createElement("p")
+    let tagCat = document.createElement("p")
+    attractionTag.appendChild(tagMrt)
+    attractionTag.appendChild(tagCat)
+    attractionCard.classList.add("attraction")
+    attractionInfo.classList.add("attraction-info")
+    attractionTag.classList.add("attraction-tag")
+    infoImg.classList.add("attraction-info-img")
+    infoName.classList.add("attraction-info-name")
+    tagMrt.classList.add("attraction-tag-mrt")
+    tagCat.classList.add("attraction-tag-cat")
+
+    return{
+        img: infoImg,
+        name: infoName,
+        mrt: tagMrt,
+        category: tagCat
+    }
+}
 
 
 
