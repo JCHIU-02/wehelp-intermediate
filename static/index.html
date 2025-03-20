@@ -3,9 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
   <title>Index</title>
 </head>
 <body>
-  
+  <nav>
+    <div class="nav">
+      <p class="nav-headline">台北一日遊</p>
+      <div class="nav-items">
+        <button class="nav-items-btn">預定行程</button>
+        <button class="nav-items-btn">登入／註冊</button>
+      </div>
+    </div>
+  </nav>
+  <div class="hero-section">
+    <div class="slogan-container">
+      <div class="slogan">
+        <p class="slogan-text slogan-textBig">輕鬆享受台北一日悠閒</p>
+        <p class="slogan-text slogan-textSmall">探索每個角落，體驗城市的深度旅遊行程</p>
+        <form class="slogan-text slogan-form" id="slogan-form">
+          <input value="輸入景點名稱查詢">
+          <btn class="slogan-btn">
+            <img src="/static/images/search.png">
+          </btn>
+        </form>
+      </div>
+    </div>
+    <img class = "banner" src="/static/images/welcome_image.png">
+  </div>
+  <main>
+    <div class="list-bar">
+      <button class="list-bar-leftBtn">
+        <img id="leftBtn-icon" src="/static/images/left-default.png">
+      </button>
+      <ul class="mrt-list" id="mrt-list">
+        <!-- <li class="mrt-list-item">Item 1</li> -->
+      </ul>
+      <button class="list-bar-rightBtn">
+        <img id="rightBtn-icon" src="/static/images/right-default.png">
+      </button>
+    </div>
+    <div class="attractions-section" id="attractions-section">
+      <!-- <div class="attraction">
+        <div class="attraction-info">
+        <img class="attraction-info-img">
+        <p class="attraction-info-name">景點名稱</p>
+        </div>
+        <div class="attraction-tag">
+          <p class="attraction-tag-mrt">捷運站</p>
+          <p class="attraction-tag-cat">景點類別</p>
+        </div>
+      </div> -->
+    </div>
+  </main>
+  <footer id="footer">COPYRIGHT © 2021 台北一日遊</footer>
+
+  <script src="/static/script.js"></script>
+
 </body>
 </html>

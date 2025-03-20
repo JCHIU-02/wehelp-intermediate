@@ -10,8 +10,8 @@ dbconfig = {
 
 def read_json_file():
     with open("data/taipei-attractions.json") as json_file:
-        json_data = json.load(json_file)
-        spots_data= json_data["result"]["results"]
+        data = json.load(json_file)
+        spots_data= data["result"]["results"]
         return spots_data
     
 def filter_imgs(spot_img):
