@@ -19,16 +19,15 @@ function createMRTContainer(){
     return mrtItem
 }
 
-//search attractions by mrt
+//search attractions by mrt station
 fetchMRTList().then(() => {
     let mrt_list_item = document.querySelectorAll(".mrt-list-item")
-    console.log(mrt_list_item)
     mrt_list_item.forEach(itemElement => {
         itemElement.addEventListener('click', function(){
             let mrtName = itemElement.textContent
             let input = document.getElementById('slogan-input')
             input.value = mrtName
-            // 建立 submit 事件，觸發 submit 事件
+            // 自動送出表單：建立 submit 事件 & 觸發 submit 事件
             let submitEvent = new Event('submit')
             let sloganForm = document.getElementById('slogan-form')
             sloganForm.dispatchEvent(submitEvent)
@@ -37,7 +36,7 @@ fetchMRTList().then(() => {
 })
 
 
-//render attractions  
+//render attractions on index page 
 function loadAttractions(page = 0, keyword = ''){
     return fetch(`/api/attractions?page=${page}&keyword=${keyword}`)
     .then(response => response.json())
@@ -55,31 +54,30 @@ function loadAttractions(page = 0, keyword = ''){
     })
 }
 
+
+//render attractions without keyword (initial loading)
 let globalObserver = null
 
-//render attractions without keyword
 loadAttractions().then(nextPage => {
-        page = nextPage
-        globalObserver = new IntersectionObserver((entries) => {
-
-                if(entries[0].isIntersecting)
-                loadAttractions(page).then(nextPageValue => {
-                    if(nextPageValue !== null){
-                        page = nextPageValue;
-                    }
-                    else{
-                        globalObserver.disconnect();
-                    }
-                });
+    currentPage = nextPage
+    globalObserver = new IntersectionObserver((entries) => {
+        if(entries[0].isIntersecting)
+        loadAttractions(currentPage).then(nextPageValue => {
+            if(nextPageValue !== null){
+                currentPage = nextPageValue;
+            }
+            else{
+                globalObserver.disconnect();
+            }
         });
-        let target = document.getElementById("footer")
-        globalObserver.observe(target);
+    });
+    let target = document.getElementById("footer")
+    globalObserver.observe(target);
 });
 
 
 //render attractions with keyword
 let form = document.getElementById("slogan-form");
-
 form.addEventListener('submit', function(e) {
     e.preventDefault()
 
@@ -97,7 +95,6 @@ form.addEventListener('submit', function(e) {
         if(nextPage != null){
             page = nextPage
             globalObserver = new IntersectionObserver((entries) => {
-                //load more...
                     if(entries[0].isIntersecting)
                     loadAttractions(page, inputValue).then(nextPageValue => {
                         if(nextPageValue !== null){
@@ -149,15 +146,10 @@ function createAttractionContainer(){
 }
 
 
-
-let mrtList = document.getElementById('mrt-list');
-let leftBtn = document.querySelector('.list-bar-leftBtn');
-let rightBtn = document.querySelector('.list-bar-rightBtn');
-let leftBtn_icon = document.getElementById('leftBtn-icon');
-let rightBtn_icon = document.getElementById('rightBtn-icon');
-
-// mrt_list 捲動
-document.addEventListener('DOMContentLoaded', function() {
+function scrollMRTList(){
+    let mrtList = document.getElementById('mrt-list');
+    let leftBtn = document.querySelector('.list-bar-leftBtn');
+    let rightBtn = document.querySelector('.list-bar-rightBtn');
     let scrollAmount = 200;
 
     leftBtn.addEventListener('click', function() {
@@ -166,42 +158,52 @@ document.addEventListener('DOMContentLoaded', function() {
             behavior: 'smooth'
         });
     });
-    
     rightBtn.addEventListener('click', function() {
         mrtList.scrollBy({
             left: scrollAmount,
             behavior: 'smooth'
         });
-
     });
-});
+}
 
-//mrt-list icon hover
-leftBtn.addEventListener('mouseover', function(){
-        leftBtn_icon.src = "/static/images/left-hovered.png"
+scrollMRTList();
+
+function changeBtnIcon(){
+    let leftBtn = document.querySelector('.list-bar-leftBtn');
+    let rightBtn = document.querySelector('.list-bar-rightBtn');
+    let leftBtn_icon = document.getElementById('leftBtn-icon');
+    let rightBtn_icon = document.getElementById('rightBtn-icon');
+
+    leftBtn.addEventListener('mouseover', function(){
+            leftBtn_icon.src = "/static/images/left-hovered.png"
+        });
+    leftBtn.addEventListener('mouseout', function(){
+            leftBtn_icon.src = "/static/images/left-default.png"
+        });
+    rightBtn.addEventListener('mouseover', function(){
+            rightBtn_icon.src = "/static/images/right-hovered.png"
+        });
+    rightBtn.addEventListener('mouseout', function(){
+            rightBtn_icon.src = "/static/images/right-default.png"
+        });
+}
+
+changeBtnIcon();
+
+
+function clearInputValue(){
+    let slogan_input = document.getElementById('slogan-input');
+    slogan_input.addEventListener('focus', function(){
+        if (slogan_input.value !== null) {
+            slogan_input.value = '';
+        }
     });
-leftBtn.addEventListener('mouseout', function(){
-        leftBtn_icon.src = "/static/images/left-default.png"
+
+    slogan_input.addEventListener('blur', function(){
+        if (slogan_input.value == '') {
+            slogan_input.value = '輸入景點名稱查詢';
+        }
     });
-rightBtn.addEventListener('mouseover', function(){
-        rightBtn_icon.src = "/static/images/right-hovered.png"
-    });
-rightBtn.addEventListener('mouseout', function(){
-        rightBtn_icon.src = "/static/images/right-default.png"
-    });
+}
 
-
-
-//input default value
-let slogan_input = document.getElementById('slogan-input');
-slogan_input.addEventListener('focus', function(){
-    if (slogan_input.value == '輸入景點名稱查詢') {
-        slogan_input.value = '';
-    }
-});
-
-slogan_input.addEventListener('blur', function(){
-    if (slogan_input.value == '') {
-        slogan_input.value = '輸入景點名稱查詢';
-    }
-});
+clearInputValue();

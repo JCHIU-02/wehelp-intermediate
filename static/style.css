@@ -201,7 +201,6 @@ main{
     margin: 0 auto;
     display: grid;
     gap: 30px;
-    /* grid-template-columns: 1fr 1fr 1fr 1fr; */
     grid-auto-rows: 242px;
     grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
 }
