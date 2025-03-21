@@ -48,6 +48,7 @@ nav{
 }
 
 .nav-items-btn:hover{
+    cursor: pointer;
     text-decoration: underline;
 }
 
@@ -130,6 +131,7 @@ input:focus{
     width: 60px;
     height: 46px;
     background-color: #448899;
+    border-width: 0px;
     border-radius: 0 5px 5px 0;
     padding: 8px 15px 8px 15px;
 }
@@ -153,14 +155,14 @@ main{
 }
 
 .list-bar-leftBtn{
-    padding: 9px 0px 9px 15px;
+    padding: 9px 0px 4px 15px;
     border: none;
     background-color: #FFFFFF;
     cursor: pointer;
 }
 
 .list-bar-rightBtn{
-    padding: 9px 15px 9px 0px;
+    padding: 9px 15px 4px 0px;
     border: none;
     background-color: #FFFFFF;
     cursor: pointer;
@@ -182,6 +184,14 @@ main{
     line-height: 13.3px;
     white-space: nowrap; /*文本不換行*/
     color:#666666;
+    cursor: pointer;
+}
+
+.mrt-list-item:hover{
+    background-color: #448899;
+    border-radius: 5px;
+    color: #FFFFFF;
+
 }
 
 .attractions-section{
