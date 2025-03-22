@@ -1,5 +1,6 @@
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 import mysql.connector, json
 from typing import Optional
 
@@ -13,7 +14,7 @@ cnx = mysql.connector.connect(pool_name = "pool", pool_size = 10, **dbconfig)
 
 
 app=FastAPI()
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
