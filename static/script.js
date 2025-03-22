@@ -57,19 +57,23 @@ function loadAttractions(page = 0, keyword = ''){
 
 //render attractions without keyword (initial loading)
 let globalObserver = null
+let isLoading = false
 
 loadAttractions().then(nextPage => {
     currentPage = nextPage
     globalObserver = new IntersectionObserver((entries) => {
-        if(entries[0].isIntersecting)
-        loadAttractions(currentPage).then(nextPageValue => {
-            if(nextPageValue !== null){
-                currentPage = nextPageValue;
-            }
-            else{
-                globalObserver.disconnect();
-            }
-        });
+        if(entries[0].isIntersecting && isLoading == false){
+            isLoading = true
+            loadAttractions(currentPage).then(nextPageValue => {
+                isLoading = false
+                if(nextPageValue !== null){
+                    currentPage = nextPageValue;
+                }
+                else{
+                    globalObserver.disconnect();
+                }
+            });
+        }
     });
     let target = document.getElementById("footer")
     globalObserver.observe(target);
@@ -95,16 +99,19 @@ form.addEventListener('submit', function(e) {
         if(nextPage != null){
             page = nextPage
             globalObserver = new IntersectionObserver((entries) => {
-                    if(entries[0].isIntersecting)
-                    loadAttractions(page, inputValue).then(nextPageValue => {
-                        if(nextPageValue !== null){
-                            page = nextPageValue;
-                        }
-                        else{
-                            globalObserver.disconnect();
-                        }
-                    });
-            });
+                    if(entries[0].isIntersecting && isLoading == false){
+                        isLoading = true
+                        loadAttractions(page, inputValue).then(nextPageValue => {
+                            if(nextPageValue !== null){
+                                isLoading = false
+                                page = nextPageValue;
+                            }
+                            else{
+                                globalObserver.disconnect();
+                            }
+                        });
+                    }   
+                });
             let target = document.getElementById("footer")
             globalObserver.observe(target);
         }
