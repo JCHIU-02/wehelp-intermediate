@@ -15,7 +15,7 @@ nav{
     position: sticky;
     top: 0;
     background-color: #FFFFFF;
-    z-index: 1;
+    z-index: 1000;
 }
 
 .nav{
@@ -321,7 +321,7 @@ footer{
 }
 
 .slide-btn{
-    z-index: 1000;
+    z-index: 100;
 }
 
 #slide-btn-left{
@@ -377,7 +377,7 @@ footer{
     position: absolute;
     bottom: 10px;
     left: 20%;
-    z-index: 1000
+    z-index: 100
 }
 
 .fade{
