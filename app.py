@@ -251,39 +251,44 @@ class SignInData(BaseModel):
 
 @app.put("/api/user/auth")
 def user_signIn(user_data:SignInData, response:Response):
-	cnx = mysql.connector.connect(pool_name = "pool")
-	cursor = cnx.cursor(buffered = True)
-	cursor.execute("SELECT email, password FROM user_data WHERE email = %s AND password = %s", (user_data.email, user_data.password))
-	matched_user = cursor.fetchone()
-	if matched_user is None:
+	try:
+		cnx = mysql.connector.connect(pool_name = "pool")
+		cursor = cnx.cursor(buffered = True)
+		cursor.execute("SELECT email, password FROM user_data WHERE email = %s AND password = %s", (user_data.email, user_data.password))
+		matched_user = cursor.fetchone()
+		if matched_user is None:
+			cnx.close()
+			return JSONResponse(
+				status_code = 400,
+				content = {
+				"error": True,
+				"message": "帳號或密碼輸入錯誤."
+			})
+		if matched_user is not None:
+			cursor = cnx.cursor(buffered = True, dictionary = True)
+			cursor.execute("SELECT id, name, email FROM user_data WHERE email = %s", (user_data.email,))
+			matched_user_data = cursor.fetchone()
+
+			payload = {
+				"sub": f"{matched_user_data["id"]}",
+				"name": matched_user_data["name"],   
+				"email": matched_user_data["email"],
+				"iat": datetime.datetime.now().timestamp(),
+				"exp": (datetime.datetime.now() + datetime.timedelta(days=7)).timestamp()
+			}
+
+			# generate token
+			token = jwt.encode(payload, secret_key, algorithm="HS256")
+			return{"token": token}
+	
+	except:
 		cnx.close()
 		return JSONResponse(
-			status_code = 400,
-			content = {
+        status_code =500,
+        content = {
 			"error": True,
-			"message": "帳號或密碼輸入錯誤."
+			"message": "Internal Server Error"
 		})
-	if matched_user is not None:
-		cursor = cnx.cursor(buffered = True, dictionary = True)
-		cursor.execute("SELECT id, name, email FROM user_data WHERE email = %s", (user_data.email,))
-		matched_user_data = cursor.fetchone()
-
-		payload = {
-    		"sub": f"{matched_user_data["id"]}",
-    		"name": matched_user_data["name"],   
-			"email": matched_user_data["email"],
-			"iat": datetime.datetime.now().timestamp(),
-    		"exp": (datetime.datetime.now() + datetime.timedelta(days=7)).timestamp()
-		}
-
-		print(payload)
-
-
-		# generate token
-		token = jwt.encode(payload, secret_key, algorithm="HS256")
-		response.set_cookie(key="token", value=token)
-		# print(token)
-		return{"ok": True}
 	
 
 @app.get("/api/user/auth")

@@ -7,8 +7,7 @@ function hideUserStatus(){
 
 
 //check user_status
-token = document.cookie.split("=")[1]
-console.log(token)
+let token = localStorage.getItem("token");
 fetch("/api/user/auth", {
     method:"GET",
     headers:{"Authorization": `Bearer ${token}`}
@@ -33,7 +32,7 @@ fetch("/api/user/auth", {
  //logout
 let logoutBtn = document.getElementById("nav-logout-btn")
 logoutBtn.addEventListener('click', function(){
-    document.cookie = "token= ; max-age=0; path=/;"
+    localStorage.removeItem("token")
     window.location.reload()
 })
 
@@ -133,15 +132,16 @@ SignInForm.addEventListener('submit', function(e){
         body: JSON.stringify(userData)
     })
     .then(response => response.json())
-    .then(userStatus => {
-        if(userStatus.ok){
-            window.location.reload();
-            
+    .then(data => {
+        if(data.token){
+            console.log(data.token)
+            localStorage.setItem("token", data.token);
+            window.location.reload()   
         }
-        else if(userStatus.error){
+        else if(data.error){
             let wrongDataMsg = document.querySelector(".login.user-status.error")
             wrongDataMsg.hidden = false
-            wrongDataMsg.textContent = userStatus["message"]
+            wrongDataMsg.textContent = data["message"]
         }
     })
 
