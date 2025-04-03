@@ -262,7 +262,7 @@ def user_signIn(user_data:SignInData, response:Response):
 				status_code = 400,
 				content = {
 				"error": True,
-				"message": "帳號或密碼輸入錯誤."
+				"message": "帳號或密碼輸入錯誤"
 			})
 		if matched_user is not None:
 			cursor = cnx.cursor(buffered = True, dictionary = True)

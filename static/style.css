@@ -533,7 +533,7 @@ footer{
     top: -350px;
     left: calc((100% - 340px) / 2);
     z-index: 1500;
-    transition: top 1s ease;
+    transition: top 0.8s ease;
 
 }
 
