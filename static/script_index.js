@@ -122,10 +122,10 @@ async function addObserver(nextPage, keyword){
 
 //load data without keyword
 renderAttractions().then(nextPage => {
-    addObserver(nextPage)
+    addObserver(nextPage, '')
 })
 
-//load with keyword
+//load data with keyword
 let form = document.getElementById("slogan-form");
 form.addEventListener('submit', function(e) {
     e.preventDefault()

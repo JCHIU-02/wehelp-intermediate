@@ -5,15 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/static/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <title>Index</title>
 </head>
 <body>
+  <div id="modal" class="modal">
+    <div class="login-box">
+      <div class="login-decobar"></div>
+      <div class="login-main">
+        <form class="login-form">
+          <p class="login-title">登入會員帳號</p>
+          <input type="text" class="login-input email" name="email" placeholder="輸入電子郵件" required>
+          <div class="login-pw-div">
+            <input type="password" class="login-input password" name="password" placeholder="輸入密碼" required>
+            <i class="fas fa-eye-slash" id="login-eye-closed"></i>
+          </div>
+          <button class="login-form-btn" id="signin-btn">登入帳戶</button>
+          <p class="login user-status ok"></p>
+          <p class="login user-status error"></p>
+          <p class="login-nextstep signup">還沒有帳戶？<span class="nextstep-btn signup" onclick="showSignupForm()">點此註冊</span></p>
+        </form>
+        <form class="signup-form" hidden>
+          <p class="signup-title">註冊會員帳戶</p>
+          <input type="text" class="signup-input name" name="name" placeholder="輸入姓名" required>
+          <input type="text" class="signup-input email" name="email" placeholder="輸入電子郵件" required>
+          <div class="sign-pw-div">
+            <input type="password" class="signup-input password" name="password" placeholder="輸入密碼" required>
+            <i class="fas fa-eye-slash" id="signup-eye-closed"></i>
+          </div>
+          <button class="signup-form-btn" id="signup-btn">註冊新帳戶</button>
+          <p class="signup user-status ok"></p>
+          <p class="signup user-status error"></p>
+          <p class="login-nextstep signin">已經有帳戶了？<span class="nextstep-btn signin" onclick="showSigninForm()">點此登入</span></p>
+        </form>
+      </div>
+    </div>
+  </div>
   <nav>
     <div class="nav">
       <p class="nav-headline" id="nav-headline">台北一日遊</p>
       <div class="nav-items">
         <button class="nav-items-btn">預定行程</button>
-        <button class="nav-items-btn">登入/註冊</button>
+        <button class="nav-items-btn nav-log-btn" id="nav-login-btn">登入／註冊</button>
+        <button class="nav-items-btn nav-log-btn" id="nav-logout-btn" hidden>登出系統</button>
       </div>
     </div>
   </nav>
@@ -62,6 +96,7 @@
   <footer id="footer">COPYRIGHT © 2021 台北一日遊</footer>
 
   <script src="/static/script_index.js"></script>
+  <script src="/static/script_login.js"></script>
 
 </body>
 </html>
