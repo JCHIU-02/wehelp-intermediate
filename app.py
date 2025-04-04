@@ -1,8 +1,12 @@
 from fastapi import *
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 import mysql.connector, json
 from typing import Optional
+from pydantic import BaseModel
+import jwt
+from fastapi import Request
+import datetime
 
 dbconfig = {
     "user":"root",
@@ -12,6 +16,7 @@ dbconfig = {
     }
 cnx = mysql.connector.connect(pool_name = "pool", pool_size = 10, **dbconfig)
 
+secret_key = "shibaInu"
 
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -202,3 +207,109 @@ async def get_mrts_desc():
 			"error": True,
 			"message": "Internal Server Error"
 		})
+	
+
+class SignUpData(BaseModel):
+    name: str
+    email: str
+    password: str	
+
+@app.post("/api/user")
+async def user_signup(user_data:SignUpData):
+	try:
+		cnx = mysql.connector.connect(pool_name = "pool")
+		cursor = cnx.cursor(buffered = True)
+		cursor.execute("SELECT email FROM user_data WHERE email = %s", (user_data.email,))
+		email = cursor.fetchone()
+		if email is None:
+			cursor.execute("INSERT INTO user_data(name, email, password) VALUES(%s, %s, %s)", (user_data.name, user_data.email, user_data.password))
+			cnx.commit()
+			cnx.close()
+			return{"ok": True}
+		if email is not None:
+			cnx.close()
+			return JSONResponse(
+				status_code = 400,
+				content = {
+				"error": True,
+				"message": "Email 已被註冊"
+			})
+	except:
+		cnx.close()
+		return JSONResponse(
+        status_code =500,
+        content = {
+			"error": True,
+			"message": "Internal Server Error"
+		})
+
+
+
+class SignInData(BaseModel):
+    email: str
+    password: str	
+
+@app.put("/api/user/auth")
+def user_signIn(user_data:SignInData, response:Response):
+	try:
+		cnx = mysql.connector.connect(pool_name = "pool")
+		cursor = cnx.cursor(buffered = True)
+		cursor.execute("SELECT email, password FROM user_data WHERE email = %s AND password = %s", (user_data.email, user_data.password))
+		matched_user = cursor.fetchone()
+		if matched_user is None:
+			cnx.close()
+			return JSONResponse(
+				status_code = 400,
+				content = {
+				"error": True,
+				"message": "帳號或密碼輸入錯誤"
+			})
+		if matched_user is not None:
+			cursor = cnx.cursor(buffered = True, dictionary = True)
+			cursor.execute("SELECT id, name, email FROM user_data WHERE email = %s", (user_data.email,))
+			matched_user_data = cursor.fetchone()
+
+			payload = {
+				"sub": f"{matched_user_data["id"]}",
+				"name": matched_user_data["name"],   
+				"email": matched_user_data["email"],
+				"iat": datetime.datetime.now().timestamp(),
+				"exp": (datetime.datetime.now() + datetime.timedelta(days=7)).timestamp()
+			}
+
+			# generate token
+			token = jwt.encode(payload, secret_key, algorithm="HS256")
+			return{"token": token}
+	
+	except:
+		cnx.close()
+		return JSONResponse(
+        status_code =500,
+        content = {
+			"error": True,
+			"message": "Internal Server Error"
+		})
+	
+
+@app.get("/api/user/auth")
+def check_user_status(request: Request):
+	auth_header = request.headers.get("Authorization")
+	token = auth_header.split(" ")[1]
+	try:
+		payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+		return{
+			"data":{
+				"id": int(payload["sub"]),
+				"name": payload["name"],
+				"email": payload["email"]
+			}
+		}
+	except jwt.InvalidTokenError:
+		return{
+			"data": None
+		}
+	except jwt.ExpiredSignatureError:
+		return{
+			"data": None
+		}
+	

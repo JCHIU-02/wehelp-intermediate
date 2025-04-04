@@ -18,7 +18,7 @@ radioBtns.forEach(button => {
 
 async function fetchOneAttraction(){
     let pathnameArr = window.location.pathname.split("/")
-    let attractionId = pathnameArr[pathnameArr.length - 1]
+    let attractionId = pathnameArr.at(-1)
     let response = await fetch(`/api/attraction/${attractionId}`)
     let data = await response.json();
     return data["data"]
@@ -46,15 +46,12 @@ async function renderData(){
 renderData()
 
 
-function createImgDiv(){
+function createImgContainer(){
   let imgContainer = document.createElement("div")
-  let img = document.createElement("img")
   let slidesContainer = document.getElementById("slides-container")
   slidesContainer.appendChild(imgContainer)
-  imgContainer.appendChild(img)
   imgContainer.classList.add("img-container")
-  img.classList.add("slide-img")
-  return img
+  return imgContainer
 }
 
 
@@ -67,14 +64,36 @@ function createBullet(){
   bulletContainer.appendChild(bullet)
 }
 
-async function renderImgs(){
+async function fetchImgs(){
   data = await fetchOneAttraction()
-  data["images"].forEach(image => {
-    let imgElement = createImgDiv()
-    imgElement.src = image
+  return data["images"]
+}
+
+async function preloadImgs(){
+  let images = await fetchImgs()
+  let preloadImages = []
+  images.forEach(image => {
+    let imgTag = new Image()
+    imgTag.src = image
+    preloadImages.push(imgTag)
+  })
+  return preloadImages  
+}
+
+async function renderImgs(){
+  let imgTags = await preloadImgs()
+  imgTags.forEach(imgTag => {
+    imgTag.classList.add("slide-img")
+    createImgContainer().appendChild(imgTag)
     createBullet()
   })
 }
+
+let slideIndex = 1;
+renderImgs().then(() => {
+  showDivs(slideIndex);
+  setupSlideBtn()
+})
 
 
 function setupSlideBtn(){
@@ -106,10 +125,3 @@ function showDivs(n) {
   imgDivs[slideIndex-1].style.display = "block";
   dots[slideIndex-1].classList.add("bullet-focus"); 
 }
-
-
-let slideIndex = 1;
-renderImgs().then(() => {
-  showDivs(slideIndex);
-  setupSlideBtn()
-})

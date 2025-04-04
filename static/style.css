@@ -4,7 +4,7 @@
 
 body{
     margin: 0 auto;
-    font-family: 'Noto Sans TC'
+    font-family: 'Noto Sans TC';
 }
 
 nav{
@@ -524,6 +524,145 @@ footer{
     appearance: none;
 }
 
+.login-box{
+    width: 340px;
+    height: auto;
+    background-color: white;
+    border-radius: 5px;
+    position: fixed;
+    top: -350px;
+    left: calc((100% - 340px) / 2);
+    z-index: 1500;
+    transition: top 0.8s ease;
+
+}
+
+.login-box.show{
+    top: 80px;
+    box-shadow: 0px 4px 60px 0px #AAAAAA;
+}
+
+.login-decobar{
+    height: 10px;
+    background-image: linear-gradient(270deg, #337788 0%, #66AABB 100%);
+    border-radius: 5px 5px 0 0;
+}
+
+.login-main{
+    padding: 15px;
+}
+
+.login-title, .signup-title{
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 24px;
+    text-align: center;
+    color:#666666;
+    margin: 0 0 15px 0;
+}
+
+.login-input, .signup-input{
+    display: block;
+    height: 47px;
+    width: 100%;
+    margin: 10px 0;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 13.3px;
+    padding: 15px;
+    color: #757575;
+
+}
+
+.login-input:focus, .signup-input:focus{
+    border: 1.5px solid #999999;
+}
+
+
+.login-form-btn, .signup-form-btn{
+    height: 46px;
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #448899;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    font-family: Noto Sans TC;
+    font-weight: 400;
+    font-size: 19px;
+    line-height: 16px;
+}
+
+.login-form-btn:hover, .signup-form-btn:hover{
+    cursor: pointer;
+    background-color: #336677
+}
+
+.login-nextstep{
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+    vertical-align: middle;
+    color: #666666;
+}
+
+.nextstep-btn{
+    text-decoration: underline;
+}
+
+.user-status{
+    text-align: center;
+    font-weight: 500;
+}
+
+.user-status.ok{
+    color: #00BB00;
+}
+
+.user-status.error{
+    color: #bb0000
+}
+
+.login-nextstep > .nextstep-btn:hover{
+    cursor: pointer;
+    color:#888888;
+}
+
+.modal{
+    display: none;
+    position: fixed;
+    z-index: 1200;
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+  }
+
+
+#login-eye-closed{
+    position: absolute;
+    top: 48%;
+    right: 30px;
+  }
+
+.sign-pw-div, .login-pw-div{
+    position: relative;
+}
+
+#signup-eye-closed, #login-eye-closed{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 15px;    
+}
+
+
 @media screen and (max-width: 820px){
     .booking-section{
         flex-wrap: wrap;
@@ -565,8 +704,8 @@ footer{
         padding-top: 0;
     }
 
-
 }
+
 
 @media screen and (max-width: 380px){
     .nav{
@@ -574,6 +713,5 @@ footer{
     }
     .nav-items-btn{
         padding:10px 5px;
-
     }
 }
