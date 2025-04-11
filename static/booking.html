@@ -3,9 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/style.css">
   <title>Booking</title>
+  <style> body { display: none } </style>
 </head>
 <body>
-  
+  <nav>
+    <div class="nav">
+      <p class="nav-headline" id="nav-headline">台北一日遊</p>
+      <div class="nav-items">
+        <button class="nav-items-btn">預定行程</button>
+        <button class="nav-items-btn nav-log-btn" id="nav-logout-btn">登出系統</button>
+      </div>
+    </div>
+  </nav>
+  <hr class="hr-navbar"/>
+  <main class="booking-main">
+    <p class="booking-headline">您好，<span>Name</span>，待預訂的行程如下：</p>
+    <div class="booking-data-container">
+      <div class="booking-data-img-container">
+        <img class="booking-data-img"/>
+      </div>
+      <div class="booking-data-text">
+        <p class="booking-data-title">台北一日遊：<span></span></p>
+        <p class="booking-data date">日期：<span></span></p>
+        <p class="booking-data time">時間：<span></span></p>
+        <p class="booking-data price">費用：<span></span></p>
+        <p class="booking-data place">地點：<span></span></p>
+        <div class="booking-data-icon-container">
+          <img class="booking-data-icon" src="/static/images/delete.svg">
+        </div>
+      </div>
+    </div>
+    <hr class="hr-main"/>
+    <div class="booking-page-form">
+      <p class="booking-page-form title">您的聯絡資訊</p>
+      <div class="booking-page-form input">
+        <label for="contact-name">聯絡姓名：</label>
+        <input type="text" id="contact-name" required>
+      </div>
+      <div class="booking-page-form input">
+        <label for="contact-email">聯絡信箱：</label>
+        <input type="email" id="contact-email" required>
+      </div>
+      <div class="booking-page-form input">
+        <label for="contact-phone-number">手機號碼：</label>
+        <input type="text" id="contact-phone-number" required>
+      </div>
+      <p class="booking-page-form notice">請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。</p>
+    </div>
+    <hr class="hr-main"/>
+    <div class="booking-page-form">
+      <p class="booking-page-form title">信用卡付款資訊</p>
+      <div class="booking-page-form input">
+        <label for="card-number">卡片號碼：</label>
+        <input type="text" id="card-number" placeholder="**** **** **** ****" required>
+      </div>
+      <div class="booking-page-form input">
+        <label for="expired-date">過期時間：</label>
+        <input id="expired-date" placeholder="MM / YY" required>
+      </div>
+      <div class="booking-page-form input">
+        <label for="cvc">驗證密碼：</label>
+        <input type="text" id="cvc" placeholder="CVV" required>
+      </div>
+    </div>
+    <hr class="hr-main"/>
+    <div class="booking-page-form text-align-right">
+      <p class="booking-page-form price">總價：<span></span></p>
+      <button class="booking-btn payment">確認訂購並付款</button>
+    </div>
+  </main>
+  <footer id="footer">COPYRIGHT © 2021 台北一日遊</footer>
+  <script src="/static/script_booking.js"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+renderData()
+
 let webTitle = document.getElementById("nav-headline")
 webTitle.addEventListener('click', function(){
     window.location.href = '/';
@@ -20,13 +22,13 @@ async function fetchOneAttraction(){
     let pathnameArr = window.location.pathname.split("/")
     let attractionId = pathnameArr.at(-1)
     let response = await fetch(`/api/attraction/${attractionId}`)
-    let data = await response.json();
+    let data = await response.json(); 
     return data["data"]
 }
 
 async function renderData(){
+
   let data = await fetchOneAttraction()
-  // console.log(data)
 
   let attractionName = document.getElementById("attraction-name")
   let category = document.getElementById("attraction-cat")
@@ -42,9 +44,6 @@ async function renderData(){
   address.textContent = data["address"]
   transport.textContent = data["transport"]
 }
-
-renderData()
-
 
 function createImgContainer(){
   let imgContainer = document.createElement("div")
@@ -125,3 +124,86 @@ function showDivs(n) {
   imgDivs[slideIndex-1].style.display = "block";
   dots[slideIndex-1].classList.add("bullet-focus"); 
 }
+
+
+//createBooking
+
+let startBooking = document.getElementById("booking-btn")
+startBooking.onclick = function(e){
+
+    e.preventDefault()
+
+    //check sign in or not
+    let token = localStorage.getItem("token");
+    fetch("/api/user/auth", {
+        method:"GET",
+        headers:{"Authorization": `Bearer ${token}`}
+    })
+    .then(response => response.json())
+    .then(data => {
+    
+        //sign in
+        if(data["data"]){
+          createBooking()
+        }
+
+        //not sign in
+        else{
+          showLoginBox()
+        }
+    })
+}
+
+
+function createBooking(){
+
+    let date = document.querySelector(".date-picker").value
+    let time = document.querySelector("input[name=time]:checked").value
+    let price = document.getElementById("price").textContent.slice(4,8)
+    let id = window.location.pathname.split('/')[2]
+
+    let bookingData = {
+        "attractionId": Number(id),
+        "date": date,
+        "time": time,
+        "price": Number(price)
+    }
+
+    let token = localStorage.getItem("token");
+    fetch('/api/booking',{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(bookingData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.ok){
+            window.location.href = "/booking"
+            renderBookingPage()
+        }
+    })
+  }
+
+function showLoginBox(){
+  let modal = document.getElementById("modal");
+  modal.style.display = "block"
+
+  setTimeout(function(){
+    let loginBox = document.querySelector(".login-box")
+    loginBox.classList.add("show")
+  }, 50)
+
+}
+
+//date-picker start from today & default today
+let today = new Date();
+let year = today.getFullYear();
+let month = String(today.getMonth() + 1).padStart(2, '0');
+let day = String(today.getDate() + 1).padStart(2, '0');
+let formattedTomorrow = `${year}-${month}-${day}`;
+document.querySelector(".date-picker").setAttribute('min', formattedTomorrow);
+document.querySelector(".date-picker").value = formattedTomorrow;
+

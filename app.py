@@ -5,8 +5,8 @@ import mysql.connector, json
 from typing import Optional
 from pydantic import BaseModel
 import jwt
-from fastapi import Request
 import datetime
+import json
 
 dbconfig = {
     "user":"root",
@@ -39,7 +39,7 @@ async def thankyou(request: Request):
 
 @app.get("/api/attractions")
 async def get_attractions(page: int, keyword: Optional[str] = None):
-
+	
 	try:
 
 		cnx = mysql.connector.connect(pool_name = "pool")
@@ -82,11 +82,6 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 				}
 
 
-			else:
-				cnx.close()	
-				return{
-					"message":"data out of range."
-				}
 		
 		if keyword is not None:
 
@@ -125,11 +120,6 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 					"data": attractions_per_page
 				}
 
-			else:
-				cnx.close()	
-				return{
-					"message":"data out of range or no matched keyword."
-				}
 
 	
 	except:
@@ -148,27 +138,27 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 async def get_attraction_by_id(attractionId:int):
 
 	try:
-
 		cnx = mysql.connector.connect(pool_name = "pool")
 		cursor = cnx.cursor(dictionary=True)
 		cursor.execute("SELECT * FROM attractions WHERE id = %s", (attractionId,))
 		attraction_data = cursor.fetchone()
-		attraction_data["images"] = json.loads(attraction_data["images"])
 
-		if attraction_data == None:
+		if attraction_data is not None:
+			attraction_data["images"] = json.loads(attraction_data["images"])
+			cnx.close()
+			return{
+			"data": attraction_data
+		}
+
+		else:
 			cnx.close()
 			return JSONResponse(
         	status_code = 400,
         	content = {
 			"error": True,
-			"message": "Id is out of range."
+			"message": "Invalid attraction ID."
 		})
-
-		cnx.close()
-		return{
-			"data": attraction_data
-		}
-	
+		
 	
 	except:
 		cnx.close()
@@ -212,7 +202,7 @@ async def get_mrts_desc():
 class SignUpData(BaseModel):
     name: str
     email: str
-    password: str	
+    password: str
 
 @app.post("/api/user")
 async def user_signup(user_data:SignUpData):
@@ -251,6 +241,7 @@ class SignInData(BaseModel):
 
 @app.put("/api/user/auth")
 def user_signIn(user_data:SignInData, response:Response):
+	
 	try:
 		cnx = mysql.connector.connect(pool_name = "pool")
 		cursor = cnx.cursor(buffered = True)
@@ -279,7 +270,7 @@ def user_signIn(user_data:SignInData, response:Response):
 
 			# generate token
 			token = jwt.encode(payload, secret_key, algorithm="HS256")
-			return{"token": token}
+			return {"token": token}
 	
 	except:
 		cnx.close()
@@ -291,8 +282,10 @@ def user_signIn(user_data:SignInData, response:Response):
 		})
 	
 
+
 @app.get("/api/user/auth")
 def check_user_status(request: Request):
+	
 	auth_header = request.headers.get("Authorization")
 	token = auth_header.split(" ")[1]
 	try:
@@ -312,4 +305,199 @@ def check_user_status(request: Request):
 		return{
 			"data": None
 		}
+
+
+class booking_data(BaseModel):
+	attractionId: int
+	date: str
+	time: str
+	price: int
+
+
+@app.post("/api/booking")
+def create_booking(booking_data:booking_data, request:Request):
+
+	try:
+
+		auth_header = request.headers.get("Authorization")
+
+		if not auth_header:
+			return JSONResponse(
+				status_code = 401,
+				content = {
+					"error": True,
+					"message": "Authorization header is required."
+				}
+			)
+
+		token = auth_header.split(" ")[1]
+
+		try:
+			payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+
+		except jwt.InvalidTokenError:
+			return JSONResponse(
+				status_code = 403,
+				content = {
+				"error": True,
+				"message": "Invalid Token"
+				}
+			)
+
+		user_id = payload["sub"]
+		attraction_id = booking_data.attractionId
+
+		cnx = mysql.connector.connect(pool_name = "pool")
+		cursor = cnx.cursor(buffered = True)
+		cursor.execute("SELECT * FROM booking_data WHERE user_id = %s",(user_id,))
+		user_already_booked = cursor.fetchone()
+		cursor.execute("SELECT * FROM attractions WHERE id = %s", (attraction_id,))
+		attraction = cursor.fetchone()
+		cnx.close()
+
+		# 檢查景點 id 是否存在
+		if attraction:
+			
+			# 檢查 user 是否已有預定資料
+			if user_already_booked:
+				cnx = mysql.connector.connect(pool_name = "pool")
+				cursor = cnx.cursor(buffered = True)
+				cursor.execute("""UPDATE booking_data SET attraction_id = %s, date = %s, time = %s, price = %s WHERE user_id = %s""",
+				(booking_data.attractionId, booking_data.date, booking_data.time, booking_data.price, user_id))
+				cnx.commit()
+				cnx.close()
+				return {"ok": True}
+			
+			else:
+				cnx = mysql.connector.connect(pool_name = "pool")
+				cursor = cnx.cursor(buffered = True)
+				cursor.execute("""INSERT INTO booking_data(attraction_id, date, time, price, user_id)
+				VALUES(%s, %s, %s, %s, %s)""",(booking_data.attractionId, booking_data.date, booking_data.time, booking_data.price, user_id))
+				cnx.commit()
+				cnx.close()
+				return {"ok": True}
+
+		else:
+			return JSONResponse(
+				status_code = 400,
+				content = {
+					"error": True,
+					"message": "The attraction ID does not exist."
+				}
+			)
 	
+	except:
+		cnx.close()
+		return JSONResponse(
+        status_code =500,
+        content = {
+			"error": True,
+			"message": "Internal Server Error"
+		})
+		
+	
+	
+@app.get("/api/booking")
+def getbooking_data(request:Request):
+
+    auth_header = request.headers.get("Authorization")
+
+    if not auth_header:
+        return JSONResponse(
+            status_code = 401,
+            content = {
+                "error": True,
+                "message": "Authorization header is required."
+            }
+        )
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+    
+    except jwt.InvalidTokenError:
+        return JSONResponse(
+            status_code = 403,
+            content = {
+                "error": True,
+                "message": "Invalid Token"
+            }
+        )
+
+    user_id = payload["sub"]
+
+    cnx = mysql.connector.connect(pool_name = "pool")
+    cursor = cnx.cursor(buffered = True, dictionary = True)
+    cursor.execute("""SELECT booking_data.date, booking_data.time, booking_data.price, attractions.id, 
+			attractions.name, attractions.address, attractions.images
+			FROM booking_data 
+			LEFT JOIN attractions ON booking_data.attraction_id = attractions.id
+			WHERE booking_data.user_id = %s""", (user_id,))
+    booking_data = cursor.fetchone()
+    cnx.close()
+
+    if not booking_data:
+        return {
+			"data": None
+		}
+
+    cover_image = json.loads(booking_data["images"])[0]
+
+    return {
+		"data": {
+			"attraction": {
+				"id": booking_data["id"],
+				"name": booking_data["name"],
+				"address": booking_data["address"],
+				"image": cover_image
+			},
+			"date": booking_data["date"].strftime("%Y-%m-%d"),
+			"time": booking_data["time"],
+			"price": booking_data["price"]
+		}
+	}
+
+
+@app.delete("/api/booking")
+def deleteBookingData(request:Request):
+
+	auth_header = request.headers.get("Authorization")
+
+	if not auth_header:
+		return JSONResponse(
+            status_code = 401,
+            content = {
+                "error": True,
+                "message": "Authorization header is required."
+            }
+        )
+	
+	token = auth_header.split(" ")[1]
+	
+	try:
+		payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+
+	except jwt.InvalidTokenError:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+			"error": True,
+			"message": "Login to get authorization."
+			}
+		)
+	
+	user_id = payload["sub"]
+	cnx = mysql.connector.connect(pool_name = "pool")
+	cursor = cnx.cursor(buffered = True)
+	cursor.execute("DELETE FROM booking_data WHERE user_id = %s", (user_id,))
+	cnx.commit()
+	cnx.close()
+
+	return {"ok": True}
+
+	
+
+
+	
+

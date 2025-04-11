@@ -1,3 +1,8 @@
+let webTitle = document.getElementById("nav-headline")
+webTitle.addEventListener('click', function(){
+    window.location.reload()
+})
+
 //fetch mrt list
 async function fetchMRTList(){
     const response = await fetch('/api/mrts');
@@ -73,7 +78,8 @@ async function fetchAttractions(page, keyword){
 //render attractions
 async function renderAttractions(page = 0, keyword = '') {
     const attractionsData = await fetchAttractions(page, keyword);
-    if(attractionsData){
+    
+    if(attractionsData["data"]){
         console.log(attractionsData["data"])
         attractionsData["data"].forEach(attraction => {
             let container = createAttractionContainer();
@@ -128,6 +134,7 @@ renderAttractions().then(nextPage => {
 //load data with keyword
 let form = document.getElementById("slogan-form");
 form.addEventListener('submit', function(e) {
+    
     e.preventDefault()
     
     let inputValue = document.getElementById("slogan-input").value
@@ -177,24 +184,3 @@ function createAttractionContainer(){
 }
 
 
-function changeBtnIcon(){
-    let leftBtn = document.querySelector('.list-bar-leftBtn');
-    let rightBtn = document.querySelector('.list-bar-rightBtn');
-    let leftBtn_icon = document.getElementById('leftBtn-icon');
-    let rightBtn_icon = document.getElementById('rightBtn-icon');
-
-    leftBtn.addEventListener('mouseover', function(){
-            leftBtn_icon.src = "/static/images/left-hovered.png"
-        });
-    leftBtn.addEventListener('mouseout', function(){
-            leftBtn_icon.src = "/static/images/left-default.png"
-        });
-    rightBtn.addEventListener('mouseover', function(){
-            rightBtn_icon.src = "/static/images/right-hovered.png"
-        });
-    rightBtn.addEventListener('mouseout', function(){
-            rightBtn_icon.src = "/static/images/right-default.png"
-        });
-}
-
-changeBtnIcon();
