@@ -39,12 +39,14 @@ authenticateUser(token).then(userData => {
                 let priceSpan = document.querySelector(".booking-data.price > span")
                 let addressSpan = document.querySelector(".booking-data.place > span")
                 let img = document.querySelector(".booking-data-img")
+                let totalPrice = document.querySelector(".booking-page-form.price > span")
                 userNameSpan.textContent = userName
                 attractionName.textContent = bookingData["attraction"]["name"]
                 dateSpan.textContent = bookingData["date"]
                 priceSpan.textContent = "新台幣 "+ bookingData["price"]+ " 元"
                 addressSpan.textContent = bookingData["attraction"]["address"]
                 img.src = bookingData["attraction"]["image"]
+                totalPrice.textContent = priceSpan.textContent
 
                 if(bookingData["time"] == "morning"){
                     timeSpan.textContent = "早上 9 點到下午 4 點"
