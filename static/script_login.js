@@ -58,7 +58,6 @@ function showSignupForm(){
     signUpBox.hidden = false  
 }
 
-//html btn onclick
 function showSigninForm(){
     let loginForm = document.querySelector(".login-form")
     loginForm.hidden = false
@@ -134,7 +133,6 @@ SignInForm.addEventListener('submit', function(e){
     .then(response => response.json())
     .then(data => {
         if(data.token){
-            console.log(data.token)
             localStorage.setItem("token", data.token);
             window.location.reload()   
         }
@@ -167,16 +165,17 @@ window.onclick = function(event) {
 
 
 //toggle password
-function togglePassword(eyeElement, input){
+function togglePassword(eyeElement, password){
     eyeElement.addEventListener("click", function(e){
         if(e.target.classList.contains('fa-eye')){
           e.target.classList.remove('fa-eye');
           e.target.classList.add('fa-eye-slash');
-          input.type = "password"
-        }else{
+          password.type = "password"
+        }
+        else{
           e.target.classList.remove('fa-eye-slash');
           e.target.classList.add('fa-eye')
-          input.type = "text"
+          password.type = "text"
         }
       });
 }

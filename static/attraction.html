@@ -50,7 +50,7 @@
       </div>
     </div>
   </nav>
-  <hr class="hr-navbar"/>
+  <hr class="hr-navbar attraction"/>
   <main class="attration-main">
     <div class="booking-section">
       <div class="booking-section-slides" id="slides-container">
@@ -58,10 +58,10 @@
           <img class="slide-img" src="" >
         </div>-->
         <div class="slide-btn" id="slide-btn-left">
-          <img class="slide-btn-img" id="slide-left-arrow" src="/static/images/btn_leftArrow.png">
+          <img class="slide-btn-img" id="slide-left-arrow" src="/static/images/btn_leftArrow.svg">
         </div>
         <div class="slide-btn" id="slide-btn-right">
-          <img class="slide-btn-img" id="slide-right-arrow" src="/static/images/btn_rightArrow.png">
+          <img class="slide-btn-img" id="slide-right-arrow" src="/static/images/btn_rightArrow.svg">
         </div>
         <div class="bullet-container" id="bullet-container">
           <!-- <div class="bullet bullet-blur bullet-focus"></div> -->
@@ -76,17 +76,17 @@
           <form class="booking-form">
             <div class="profile-box-date">
               <p class="text-bold date-picker-text">選擇日期：</p>
-              <input type="date" class="date-picker">
+              <input type="date" class="date-picker" required>
             </div>
             <div class="profile-box-time">
               <p class="text-bold">選擇時間：</p>
               <input type="radio" class="radio-btn" id="morning" name="time" value="morning" checked>
-              <label for="morning">上半天</label>
-              <input type="radio" class="radio-btn" id="afternoon" name="time" value="afternoon">
-              <label for="afternoon">下半天</label>
+              <label for="morning">上半天</label>
+              <input type="radio" class="radio-btn" id="afternoon" name="time" value="afternoon">
+              <label for="afternoon">下半天</label>
             </div>
-            <p><span class="text-bold">導覽費用：</span><span id="price">新台幣 2000 元</span></p>
-            <button class="booking-btn">開始預約行程</button>
+            <p class="profile-box-price"><span class="text-bold">導覽費用：</span><span id="price">新台幣 2000 元</span></p>
+            <button class="booking-btn" id="booking-btn">開始預約行程</button>
           </form>
         </div>
       </div>
@@ -103,7 +103,8 @@
     </div>
   </main>
   <footer>COPYRIGHT © 2021 台北一日遊</footer>
-  <script src="/static/script_attractions.js"></script>
   <script src="/static/script_login.js"></script>
+  <script src="/static/script_attractions.js"></script>
+  <script src="/static/script_showBookingCart.js"></script>
 </body>
 </html>
