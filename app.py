@@ -7,6 +7,8 @@ from pydantic import BaseModel
 import jwt
 import datetime
 import json
+from dotenv import load_dotenv
+import os
 
 dbconfig = {
     "user":"root",
@@ -16,7 +18,9 @@ dbconfig = {
     }
 cnx = mysql.connector.connect(pool_name = "pool", pool_size = 10, **dbconfig)
 
-secret_key = "shibaInu"
+load_dotenv("/Users/qiuhouan/Desktop/WeHelp/Intermediate/week1/taipei-day-trip/shiba.env")
+env_key = os.getenv("secret_key")
+secret_key = env_key
 
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
