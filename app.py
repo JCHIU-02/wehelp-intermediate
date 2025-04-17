@@ -7,6 +7,7 @@ from pydantic import BaseModel
 import jwt
 import datetime
 import json
+import requests
 from dotenv import load_dotenv
 import os
 
@@ -135,9 +136,6 @@ async def get_attractions(page: int, keyword: Optional[str] = None):
 			"message": "Internal Server Error"
 		})
 
-
-
-
 @app.get("/api/attraction/{attractionId}")
 async def get_attraction_by_id(attractionId:int):
 
@@ -173,7 +171,6 @@ async def get_attraction_by_id(attractionId:int):
 			"message": "Internal Server Error"
 		})
 	
-
 @app.get("/api/mrts")
 async def get_mrts_desc():
 	try:
@@ -201,13 +198,11 @@ async def get_mrts_desc():
 			"error": True,
 			"message": "Internal Server Error"
 		})
-	
 
 class SignUpData(BaseModel):
     name: str
     email: str
     password: str
-
 @app.post("/api/user")
 async def user_signup(user_data:SignUpData):
 	try:
@@ -237,12 +232,9 @@ async def user_signup(user_data:SignUpData):
 			"message": "Internal Server Error"
 		})
 
-
-
 class SignInData(BaseModel):
     email: str
     password: str	
-
 @app.put("/api/user/auth")
 def user_signIn(user_data:SignInData, response:Response):
 	
@@ -285,8 +277,6 @@ def user_signIn(user_data:SignInData, response:Response):
 			"message": "Internal Server Error"
 		})
 	
-
-
 @app.get("/api/user/auth")
 def check_user_status(request: Request):
 	
@@ -310,14 +300,11 @@ def check_user_status(request: Request):
 			"data": None
 		}
 
-
 class booking_data(BaseModel):
 	attractionId: int
 	date: str
 	time: str
 	price: int
-
-
 @app.post("/api/booking")
 def create_booking(booking_data:booking_data, request:Request):
 
@@ -397,9 +384,7 @@ def create_booking(booking_data:booking_data, request:Request):
         content = {
 			"error": True,
 			"message": "Internal Server Error"
-		})
-		
-	
+		})	
 	
 @app.get("/api/booking")
 def getbooking_data(request:Request):
@@ -462,7 +447,6 @@ def getbooking_data(request:Request):
 		}
 	}
 
-
 @app.delete("/api/booking")
 def deleteBookingData(request:Request):
 
@@ -500,6 +484,196 @@ def deleteBookingData(request:Request):
 
 	return {"ok": True}
 
+@app.post("/api/orders")
+async def create_order_and_payment(request: Request):
+
+	try:
+
+		try:
+			order_data = await request.json()
+
+		except:
+			return JSONResponse(
+				status_code = 400,
+				content={
+					"error": True,
+					"message": "Invalid or missing JSON body"
+				}
+			)
+
+		auth_header = request.headers.get("Authorization")
+
+		if not auth_header:
+			return JSONResponse(
+				status_code = 401,
+				content = {
+					"error": True,
+					"message": "Authorization header is required."
+				}
+			)
+
+		token = auth_header.split(" ")[1]
+
+		try:
+			payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+
+		except jwt.InvalidTokenError:
+			return JSONResponse(
+				status_code = 403,
+				content = {
+				"error": True,
+				"message": "Login to get authorization."
+				}
+			)
+		
+		# 產生 orderNumber (時間戳記+userid)
+		user_id = payload["sub"]
+		now_string = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+		order_number = f"{now_string}{user_id}"
+			
+		# 將 order data 存進資料庫 -> 狀態 Paid = N
+		cnx = mysql.connector.connect(pool_name = "pool")
+		cursor = cnx.cursor(buffered = True)
+		cursor.execute("""INSERT INTO order_data(order_number, price, attraction_id, attraction_name, attraction_add, attraction_img, date, time, name, email, phone) 
+				 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+					(order_number, order_data["order"]["price"], order_data["order"]["trip"]["attraction"]["id"], order_data["order"]["trip"]["attraction"]["name"], 
+	  					order_data["order"]["trip"]["attraction"]["address"], order_data["order"]["trip"]["attraction"]["image"], 
+						order_data["order"]["trip"]["date"], order_data["order"]["trip"]["time"],
+	  					order_data["order"]["contact"]["name"], order_data["order"]["contact"]["email"], order_data["order"]["contact"]["phone"]))
+		cnx.commit()
+		cnx.close()
+
+		# fetch tap pay api
+		url = 'https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime'
+		api_key = "partner_AzA78ymgW5U9c4KP07WhC8Lnl8NoN1l7yKY5ih34GbS3brBolXsIGM6d"
+
+		headers = {
+		"Content-Type": "application/json",
+		"x-api-key": api_key
+		}
+
+		payload = {
+		"prime": order_data["prime"],  
+		"partner_key": api_key,
+		"merchant_id": "musictalk_FUBON_POS_3",
+		"details": "TapPay Test",
+		"order_number": order_number,
+		"amount": order_data["order"]["price"],
+		"cardholder": {
+			"name": order_data["order"]["contact"]["name"],
+			"email": order_data["order"]["contact"]["email"],
+			"phone_number": order_data["order"]["contact"]["phone"]
+		},
+		"remember": True
+		}
+		
+		response = requests.post(url, headers=headers, json=payload, timeout=30)
+		payment_data = response.json()
+
+		# 等待 api response，將 response 中的 payment status 存到 orderdata 資料庫並 marked paid
+		if payment_data["status"] == 0:
+			cnx = mysql.connector.connect(pool_name = "pool")
+			cursor = cnx.cursor(buffered = True)
+			cursor.execute("UPDATE order_data SET paid = 'Y', status = 0 WHERE order_number = %s",(order_number,)) 
+			cnx.commit()
+			# 預定成功清空購物車
+			cursor.execute("DELETE FROM booking_data WHERE user_id = %s", (user_id,))
+			cnx.commit()
+			cnx.close()
+			return JSONResponse(status_code = 200, 
+				content={
+					"data": {
+						"number": order_number,
+						"payment": {
+							"status": 0,
+							"message": "付款成功"
+						}
+					}
+				})
+		else:
+			cnx = mysql.connector.connect(pool_name = "pool")
+			cursor = cnx.cursor(buffered = True)
+			cursor.execute("UPDATE order_data SET status = %s WHERE order_number = %s",(payment_data["status"], order_number)) 
+			cnx.commit()
+			cnx.close()
+			return JSONResponse(status_code = 200, 
+				content={
+					"data": {
+						"number": order_number,
+						"payment": {
+							"status": 1,
+							"message": "付款失敗"
+						}
+					}
+				})
+			
+	except:
+		return JSONResponse(status_code = 500, 
+				content={
+					"error": True,
+					"message": "Internal Server Error"
+				})
+
+	# 將 order number response 給前端
+
+@app.get("/api/order/{orderNumber}")
+def getOrderbyNumber(orderNumber, request:Request):
+
+	auth_header = request.headers.get("Authorization")
+
+	if not auth_header:
+		return JSONResponse(
+			status_code = 401,
+			content = {
+				"error": True,
+				"message": "Authorization header is required."
+			}
+		)
+
+	token = auth_header.split(" ")[1]
+
+	try:
+		jwt.decode(token, secret_key, algorithms=["HS256"])
+
+	except jwt.InvalidTokenError:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+			"error": True,
+			"message": "Login to get authorization."
+			}
+		)
+	
+	cnx = mysql.connector.connect(pool_name = "pool")
+	cursor = cnx.cursor(buffered=True, dictionary=True)
+	cursor.execute("SELECT * FROM order_data WHERE order_number = %s", (orderNumber,)) 
+	orderData = cursor.fetchone()
+	cnx.close()
+	if orderData:
+		return JSONResponse(status_code=200, content={
+			"data": {
+				"number": orderData["order_number"],
+				"price": orderData["price"],
+				"trip": {
+				"attraction": {
+					"id": orderData["attraction_id"],
+					"name": orderData["attraction_name"],
+					"address": orderData["attraction_add"],
+					"image": orderData["attraction_img"]
+				},
+				"date": orderData["date"],
+				"time": orderData["time"]
+				},
+				"contact": {
+				"name": orderData["name"],
+				"email": orderData["email"],
+				"phone": orderData["phone"]
+				},
+				"status": orderData["status"]
+			}
+		})
+	else:
+		return{"data": None}
 	
 
 

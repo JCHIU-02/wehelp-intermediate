@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/static/style.css">
   <title>Booking</title>
-  <style> body { display: none } </style>
+  <style> body { display: none; } </style>
+  <script src="https://js.tappaysdk.com/sdk/tpdirect/v5.19.2"></script>
+  <script>TPDirect.setupSDK(159787, 'app_NHJsKv7EsMzr5ccukWes3gnx1jzqFp3TPIDtrXdGslpL0UNsF3p0tDC4OtHj', 'sandbox')</script>
 </head>
 <body>
   <nav>
@@ -36,45 +38,48 @@
       </div>
     </div>
     <hr class="hr-main"/>
-    <div class="booking-page-form">
-      <p class="booking-page-form title">您的聯絡資訊</p>
-      <div class="booking-page-form input">
-        <label for="contact-name">聯絡姓名：</label>
-        <input type="text" id="contact-name" required>
+    <form id="pay-form">
+      <div class="booking-page-form">
+        <p class="booking-page-form title">您的聯絡資訊</p>
+        <div class="booking-page-form input">
+          <label for="contact-name">聯絡姓名：</label>
+          <input type="text" id="contact-name" required>
+        </div>
+        <div class="booking-page-form input">
+          <label for="contact-email">聯絡信箱：</label>
+          <input type="email" id="contact-email" required>
+        </div>
+        <div class="booking-page-form input">
+          <label for="contact-phone-number">手機號碼：</label>
+          <input type="text" id="contact-phone-number" maxlength="10" required>
+        </div>
+        <p class="booking-page-form notice">請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。</p>
       </div>
-      <div class="booking-page-form input">
-        <label for="contact-email">聯絡信箱：</label>
-        <input type="email" id="contact-email" required>
+      <hr class="hr-main"/>
+      <div class="booking-page-form">
+        <p class="booking-page-form title">信用卡付款資訊</p>
+        <div class="tpfield-container">
+          <p class="tpfield-label">卡片號碼：</p>
+          <div class="tpfield" id="card-number"></div>
+        </div>
+        <div class="tpfield-container">
+          <p class="tpfield-label">過期時間：</p>
+          <div class="tpfield" id="card-expiration-date"></div>
+        </div>
+        <div class="tpfield-container">
+          <p class="tpfield-label">驗證密碼：</p>
+          <div class="tpfield" id="card-ccv"></div>
+        </div>
       </div>
-      <div class="booking-page-form input">
-        <label for="contact-phone-number">手機號碼：</label>
-        <input type="text" id="contact-phone-number" required>
+      <hr class="hr-main"/>
+      <div class="booking-page-form text-align-right">
+        <p class="booking-page-form price">總價：<span></span></p>
+        <button type="submit" class="booking-btn payment">確認訂購並付款</button>
       </div>
-      <p class="booking-page-form notice">請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。</p>
-    </div>
-    <hr class="hr-main"/>
-    <div class="booking-page-form">
-      <p class="booking-page-form title">信用卡付款資訊</p>
-      <div class="booking-page-form input">
-        <label for="card-number">卡片號碼：</label>
-        <input type="text" id="card-number" placeholder="**** **** **** ****" required>
-      </div>
-      <div class="booking-page-form input">
-        <label for="expired-date">過期時間：</label>
-        <input id="expired-date" placeholder="MM / YY" required>
-      </div>
-      <div class="booking-page-form input">
-        <label for="cvc">驗證密碼：</label>
-        <input type="text" id="cvc" placeholder="CVV" required>
-      </div>
-    </div>
-    <hr class="hr-main"/>
-    <div class="booking-page-form text-align-right">
-      <p class="booking-page-form price">總價：<span></span></p>
-      <button class="booking-btn payment">確認訂購並付款</button>
-    </div>
+    </form>
   </main>
-  <footer id="footer">COPYRIGHT © 2021 台北一日遊</footer>
+  <footer class="footer booking">COPYRIGHT © 2021 台北一日遊</footer>
   <script src="/static/script_booking.js"></script>
+  <script src="/static/script_payment.js"></script>
 </body>
 </html>
