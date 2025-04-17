@@ -866,7 +866,7 @@ a{
 }
 
 .thankyou.booking-data-container{
-    display: none;
+    display: flex;
     align-items: center;
     padding: 20px;
     border: 1.5px solid #aaaaaa;

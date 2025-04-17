@@ -12,9 +12,6 @@ async function authenticateUser(token){
     if (!data["data"]) {
         window.location.href = "/";
     }    
-    else{
-        document.body.style.display = "block"
-    }
 }
 
 //fetch 訂單資訊，status=0 渲染成功資訊，status=1 渲染失敗資訊
@@ -65,8 +62,8 @@ function renderPaymentSuccessPage(data){
         }
         let note = document.querySelector(".thankyou.note")
         note.textContent = "請記得將預定行程加到行事曆或截圖喔，期待與您相見。"
-        let orderDatacontainer = document.querySelector(".thankyou.booking-data-container")
-        orderDatacontainer.style.display = "flex"
+        let main = document.querySelector(".thankyou-main")
+        main.style.display = "block"
 }
 
 function renderPaymentFailedPage(data){
@@ -80,6 +77,10 @@ function renderPaymentFailedPage(data){
     let footer = document.querySelector(".footer.thankyou")
     footer.style.position = "fixed"
     footer.style.bottom = "0"
+    let orderDataContainer = document.querySelector(".thankyou.booking-data-container")
+    orderDataContainer.style.display = "none"
+    let main = document.querySelector(".thankyou-main")
+    main.style.display = "block"
 }
 
 //logout
