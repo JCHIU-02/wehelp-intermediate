@@ -19,7 +19,7 @@ dbconfig = {
     }
 cnx = mysql.connector.connect(pool_name = "pool", pool_size = 10, **dbconfig)
 
-load_dotenv("/Users/qiuhouan/Desktop/WeHelp/Intermediate/week1/taipei-day-trip/shiba.env")
+load_dotenv("/home/ubuntu/wehelp-intermediate/shiba.env")
 env_key = os.getenv("secret_key")
 secret_key = env_key
 
@@ -544,7 +544,7 @@ async def create_order_and_payment(request: Request):
 			cnx.commit()
 			cnx.close()
 		except:
-			return{"message": "failed to post data to DB"}
+			return {"message": "Fail to post order data to DB"}
 
 		# fetch tap pay api
 		try:
@@ -575,7 +575,7 @@ async def create_order_and_payment(request: Request):
 			payment_data = response.json()
 		
 		except:
-			return{"message":"failed to get response from TapPay"}
+			return{"message":"Fail to receive response from TapPay"}
 
 		# 等待 api response，將 response 中的 payment status 存到 orderdata 資料庫並 marked paid
 		if payment_data["status"] == 0:
