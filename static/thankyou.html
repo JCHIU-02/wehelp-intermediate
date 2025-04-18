@@ -3,9 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/style.css">
   <title>Thank You</title>
+  <style> .thankyou-main { display: none } </style>
 </head>
 <body>
-  
+  <nav>
+    <div class="nav">
+      <p class="nav-headline" id="nav-headline">台北一日遊</p>
+      <div class="nav-items">
+        <button class="nav-items-btn">預定行程</button>
+        <button class="nav-items-btn nav-log-btn" id="nav-logout-btn">登出系統</button>
+      </div>
+    </div>
+  </nav>
+  <hr class="hr-navbar"/>
+  <main class="thankyou-main">
+    <p class="payment-headline"><a href="/booking"></a></p>
+    <p class="payment-content"></p>
+    <div class="thankyou booking-data-container">
+      <div class="booking-data-img-container">
+        <img class="thankyou booking-data-img"/>
+      </div>
+      <div>
+        <p class="thankyou order-number"></p>
+        <p class="thankyou-attraction"></p>
+        <p class="thankyou date"></p>
+        <p class="thankyou time"></p>
+        <p class="thankyou place"></p>
+      </div>
+    </div>
+    <p class="thankyou note"></p>
+  </main>
+  <footer class="footer thankyou">COPYRIGHT © 2021 台北一日遊</footer>
+  <script src="/static/script_thankyou.js"></script>
+  <script src="/static/script_showBookingCart.js"></script>
 </body>
 </html>

@@ -24,9 +24,3 @@ navBookingBtn.onclick = function(){
             }
         })
     }
-
-
-
-
-    
-
